@@ -5,7 +5,7 @@ CONTAINER_NAME=clion_remote_env
 IMAGE_NAME=clion/remote-cpp-env:latest
 PORT=2222
 
-while getopts "h?nip:" opt; do
+while getopts "h?n:i:p:" opt; do
   case "$opt" in
   h|\?)
     echo "Run the docker image for remote cpp development over ssh."
@@ -40,7 +40,8 @@ sh ./stop.sh "$CONTAINER_NAME"
 echo "Spinning up container ${CONTAINER_NAME} from image ${IMAGE_NAME}..."
 docker run -d --cap-add sys_ptrace -p127.0.0.1:"$PORT":22 --name "$CONTAINER_NAME" "$IMAGE_NAME"
 
-echo "Clearing any cached SSH keys on port ${PORT}"
-ssh-keygen -f "$HOME/.ssh/known_hosts" -R 127.0.0.1:"$PORT"
+# TODO: Enable this with a flag, it requires sudo but is not always needed
+#echo "Clearing any cached SSH keys on port ${PORT}"
+#sudo ssh-keygen -f "$HOME/.ssh/known_hosts" -R 127.0.0.1:"$PORT"
 
 echo "Done"

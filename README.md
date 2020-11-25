@@ -45,6 +45,9 @@ You can change the mapped port (default 2222) of the container with `sh run.sh -
 You can change the name of the generated image or running container with respective flags
 in the build and run scripts. See `sh build -h` and `sh run.sh -h` for more info.
 
+Sometimes there will be an issue cached SSH host keys. You can clear them with 
+`sudo ssh-keygen -f "$HOME/.ssh/known_hosts" -R 127.0.0.1:2222`, 
+or replace 2222 with your custom port.
 
 ## Extension
 

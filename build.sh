@@ -4,7 +4,7 @@ OPTIND=1
 CMAKE_VER=""
 IMAGE_NAME=clion/remote-cpp-env
 
-while getopts "h?vn:" opt; do
+while getopts "h?v:n:" opt; do
   case "$opt" in
   h|\?)
     echo "Build the docker image for remote cpp development over ssh."
