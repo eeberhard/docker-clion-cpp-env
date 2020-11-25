@@ -7,6 +7,6 @@ then
   NAME=$1
 fi
 
-echo "Trying to stop and remove container with name ${NAME}..."
-docker container stop "$NAME"
-docker rm --force "$NAME"
+echo "Stopping and removing any container with name ${NAME}..."
+docker container stop "$NAME" > /dev/null 2>&1
+docker rm --force "$NAME" > /dev/null 2>&1
