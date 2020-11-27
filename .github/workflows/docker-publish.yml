@@ -44,39 +44,39 @@ jobs:
             docker build . --file Dockerfile
           fi
 
-    # Push image to GitHub Packages.
-    # See also https://docs.docker.com/docker-hub/builds/
-    push_on_dispatch:
-      # Ensure test job passes before pushing image.
-      needs: test
+  # Push image to GitHub Packages.
+  # See also https://docs.docker.com/docker-hub/builds/
+  push_on_dispatch:
+    # Ensure test job passes before pushing image.
+    needs: test
 
-      runs-on: ubuntu-latest
-      if: github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    if: github.event_name == 'workflow_dispatch'
 
-      steps:
-        - uses: actions/checkout@v2
+    steps:
+      - uses: actions/checkout@v2
 
-        - name: Build image
-          run: docker build . --file Dockerfile --tag $IMAGE_NAME --build-arg CMAKE_VER=${{ github.event.inputs.cmake_ver }}
+      - name: Build image
+        run: docker build . --file Dockerfile --tag $IMAGE_NAME --build-arg CMAKE_VER=${{ github.event.inputs.cmake_ver }}
 
-        - name: Log into registry
-          run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login docker.pkg.github.com -u ${{ github.actor }} --password-stdin
+      - name: Log into registry
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login docker.pkg.github.com -u ${{ github.actor }} --password-stdin
 
-        - name: Push image
-          run: |
-            IMAGE_ID=docker.pkg.github.com/${{ github.repository }}/${{ github.event.inputs.image_name }}
+      - name: Push image
+        run: |
+          IMAGE_ID=docker.pkg.github.com/${{ github.repository }}/${{ github.event.inputs.image_name }}
 
-            # Change all uppercase to lowercase
-            IMAGE_ID=$(echo $IMAGE_ID | tr '[A-Z]' '[a-z]')
+          # Change all uppercase to lowercase
+          IMAGE_ID=$(echo $IMAGE_ID | tr '[A-Z]' '[a-z]')
 
-            # Strip git ref prefix from version
-            VERSION=cmake-${{ github.event.inputs.name }}
+          # Strip git ref prefix from version
+          VERSION=cmake-${{ github.event.inputs.name }}
 
-            echo IMAGE_ID=$IMAGE_ID
-            echo VERSION=$VERSION
+          echo IMAGE_ID=$IMAGE_ID
+          echo VERSION=$VERSION
 
-            docker tag $IMAGE_NAME $IMAGE_ID:$VERSION
-            docker push $IMAGE_ID:$VERSION
+          docker tag $IMAGE_NAME $IMAGE_ID:$VERSION
+          docker push $IMAGE_ID:$VERSION
 
   # Push image to GitHub Packages.
   # See also https://docs.docker.com/docker-hub/builds/
