@@ -1,17 +1,26 @@
 name: Docker
 
 on:
+  workflow_dispatch:
+    inputs:
+      image_name:
+        description: 'Image name'
+        required: true
+        default: 'cpp-remote-env'
+      cmake_ver:
+        description: 'CMake version'
+        required: true
+        default: '3.17.5'
+
   push:
     # Publish `master` as Docker `latest` image.
     branches:
       - master
+      - development
 
     # Publish `v1.2.3` tags as releases.
     tags:
       - v*
-
-  # Run tests for any PRs.
-  pull_request:
 
 env:
   # TODO: Change variable to your image's name.
@@ -34,6 +43,40 @@ jobs:
           else
             docker build . --file Dockerfile
           fi
+
+    # Push image to GitHub Packages.
+    # See also https://docs.docker.com/docker-hub/builds/
+    push_on_dispatch:
+      # Ensure test job passes before pushing image.
+      needs: test
+
+      runs-on: ubuntu-latest
+      if: github.event_name == 'workflow_dispatch'
+
+      steps:
+        - uses: actions/checkout@v2
+
+        - name: Build image
+          run: docker build . --file Dockerfile --tag $IMAGE_NAME --build-arg CMAKE_VER=${{ github.event.inputs.cmake_ver }}
+
+        - name: Log into registry
+          run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login docker.pkg.github.com -u ${{ github.actor }} --password-stdin
+
+        - name: Push image
+          run: |
+            IMAGE_ID=docker.pkg.github.com/${{ github.repository }}/${{ github.event.inputs.image_name }}
+
+            # Change all uppercase to lowercase
+            IMAGE_ID=$(echo $IMAGE_ID | tr '[A-Z]' '[a-z]')
+
+            # Strip git ref prefix from version
+            VERSION=cmake-${{ github.event.inputs.name }}
+
+            echo IMAGE_ID=$IMAGE_ID
+            echo VERSION=$VERSION
+
+            docker tag $IMAGE_NAME $IMAGE_ID:$VERSION
+            docker push $IMAGE_ID:$VERSION
 
   # Push image to GitHub Packages.
   # See also https://docs.docker.com/docker-hub/builds/
@@ -68,6 +111,7 @@ jobs:
 
           # Use Docker `latest` tag convention
           [ "$VERSION" == "master" ] && VERSION=latest
+          [ "$VERSION" == "development" ] && VERSION=dev
 
           echo IMAGE_ID=$IMAGE_ID
           echo VERSION=$VERSION
