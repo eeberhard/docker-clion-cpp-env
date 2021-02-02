@@ -1,4 +1,5 @@
-FROM ubuntu:18.04
+FROM ubuntu:20.04
+ENV DEBIAN_FRONTEND=noninteractive
 
 ARG CMAKE_VER=3.17.5
 
