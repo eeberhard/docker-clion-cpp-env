@@ -36,6 +36,7 @@ RUN ( \
   ) > /etc/ssh/sshd_config_development \
   && mkdir /run/sshd
 
+ENV DEBIAN_FRONTEND=keyboard-interactive
 RUN useradd -m remote && yes password | passwd remote
 
 CMD ["/usr/sbin/sshd", "-D", "-e", "-f", "/etc/ssh/sshd_config_development"]
