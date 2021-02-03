@@ -1,4 +1,5 @@
-FROM ubuntu:18.04
+FROM ubuntu:20.04
+ENV DEBIAN_FRONTEND=noninteractive
 
 ARG CMAKE_VER=3.17.5
 
@@ -35,6 +36,7 @@ RUN ( \
   ) > /etc/ssh/sshd_config_development \
   && mkdir /run/sshd
 
+ENV DEBIAN_FRONTEND=keyboard-interactive
 RUN useradd -m remote && yes password | passwd remote
 
 CMD ["/usr/sbin/sshd", "-D", "-e", "-f", "/etc/ssh/sshd_config_development"]
